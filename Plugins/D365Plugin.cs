@@ -19,7 +19,9 @@ namespace GettingStarted.Plugins
         {
             return UserRepository.Instance
                 .GetAllUsers()
-                .Where(user => user?.LastName.Contains(pattern, StringComparison.OrdinalIgnoreCase) ?? false)
+                .Where(user =>
+                           (user?.LastName?.Contains(pattern, StringComparison.OrdinalIgnoreCase) ?? false)
+                        || (user?.Email?.Contains(pattern, StringComparison.OrdinalIgnoreCase) ?? false))
                 .ToList();
 
         }
