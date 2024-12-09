@@ -14,7 +14,7 @@ namespace GettingStarted.Plugins
             return UserRepository.Instance.GetAllUsers();
         }
 
-        [KernelFunction, Description("Gets users in elVIS with a search pattern")]
+        [KernelFunction, Description("Gets users in elVIS with by search pattern")]
         public static IReadOnlyCollection<User> GetUsersBySearchPattern(string pattern)
         {
             return UserRepository.Instance

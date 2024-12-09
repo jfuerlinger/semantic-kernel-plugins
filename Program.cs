@@ -19,6 +19,13 @@ string? openAiServiceId = openAiConfiguration["ServiceID"] ?? throw new Configur
 
 #endregion
 
+var systemprompt = """
+          Du bist ein AI-Assistent für die Anwendung elVIS und antwortest immer höflich. Deine Aufgabe es es die Benutzer der elVIS zu verwalten (Benutzer auslesen
+          und neue Benutzer hinzuzufügen).
+          Wenn du etwas nicht weißt, dann antwortest du bitte mit 'Dies kann ich nicht beantworten. Bitte wenden Sie sich an den Support unter support@bfi-ooe.at'.
+          Wenn du dir nicht sicher bist, dann antworte nur mit den gesicherten bzw. korrekten Informationen!
+        """;
+
 var builder = Kernel.CreateBuilder();
 builder.AddAzureOpenAIChatCompletion(
     openAiDeploymentName,
@@ -41,21 +48,18 @@ Console.Write("User > ");
 Console.ForegroundColor = prevColor;
 string? userInput;
 ChatHistory history = [];
+
+OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
+{
+    ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+    ChatSystemPrompt = systemprompt
+};
+
 while ((userInput = Console.ReadLine()) != null)
 {
-    history.AddUserMessage(userInput);
+    if (userInput.Equals("exit", StringComparison.OrdinalIgnoreCase)) break;
 
-    // Enable auto function calling
-    OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
-    {
-        ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-        ChatSystemPrompt =
-        """
-          Du bist ein AI-Assistent für die Anwendung elVIS und antwortest immer höflich. 
-          Wenn du etwas nicht weißt, dann antwortest du bitte mit 'Dies kann ich nicht beantworten. Bitte wenden Sie sich an den Support unter support@bfi-ooe.at'.
-          Wenn du dir nicht sicher bist, dann antworte nur mit den gesicherten bzw. korrekten Informationen!
-        """
-    };
+    history.AddUserMessage(userInput);
 
     // Get the response from the AI
     var result = chatCompletionService.GetStreamingChatMessageContentsAsync(
